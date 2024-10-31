@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Table, JSON
 from sqlalchemy.orm import relationship, backref
-from database import Base
+from app.database import Base
 from datetime import datetime
 from cuid2 import Cuid as cuid
 
