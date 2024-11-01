@@ -15,5 +15,10 @@ def get_db():
         
         
 
-def get_users_by_name(db: Session, name: str):
-    return db.query(User).filter(User.username == name).all()
+def get_users(db: Session):
+    return db.query(User).all()
+
+
+def get_user(db: Session, user_id: int):
+    return db.query(User).filter(User.id == user_id).first()
+
