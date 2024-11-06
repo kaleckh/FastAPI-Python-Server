@@ -11,16 +11,9 @@ router = APIRouter()
 
 @router.get('/last-message/{conversation_id}')
 def get_last_message(conversation_id: str, db: Session = Depends(get_db)):
-    
-    lastMessage = (
-            db.query(crud.Message)
-            .filter(crud.Message.conversation_id == conversation_id)
-            .order_by(crud.Message.date.desc())
-            .first()
-        )
+    lastMessage = crud.get_last_message(db,conversation_id)
     if lastMessage is None: 
         raise HTTPException(status_code=404, detail="No messages found")
-    
     return {"message": lastMessage}
 
 
