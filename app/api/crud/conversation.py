@@ -1,8 +1,8 @@
 from fastapi import Depends
 from app.database import SessionLocal
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.api.schemas.conversation import ConversationCreate, ConversationUpdate
-from app.models import Conversation
+from app.models import Conversation, User, Message
 from fastapi import FastAPI, Depends
 
 app = FastAPI()
@@ -15,8 +15,18 @@ def get_db():
         db.close()
         
         
-def get_conversations(db: Session):
-    return db.query(Conversation).all()
+def get_conversations(db: Session, user_id: int):
+    return (
+        db.query(Conversation)
+        .filter(
+            Conversation.users.any(User.id == user_id)  
+        )
+        .options(
+            joinedload(Conversation.users),
+            joinedload(Conversation.messages).order_by(Message.date.desc())
+        )
+        .all()
+    )
 
 
 
