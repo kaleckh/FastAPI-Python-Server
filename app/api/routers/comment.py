@@ -14,9 +14,11 @@ def create_comment(comment: CommentCreate, db: Session = Depends(get_db)):
     allComments = crud.get_all_comments(db)
     return {"allComments": allComments}
 
+
+
 @router.delete('/delete/{comment_id}')
 def delete_comment(comment_id: str, db: Session = Depends(get_db) ):
-    
+    return crud.delete_comment(db, comment_id)
 
 
 
