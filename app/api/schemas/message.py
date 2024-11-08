@@ -13,6 +13,10 @@ class MessageCreate(MessageBase):
     user_id: str
 
 
+class MessageUpdate(MessageBase):
+    pass
+
+
 class MessageResponse(MessageBase):
     id: str
     date: datetime

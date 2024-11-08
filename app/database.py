@@ -1,9 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
-DATABASE_URL = "postgresql://postgres:postgres@127.0.0.1:5432/python"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 
 def get_db():

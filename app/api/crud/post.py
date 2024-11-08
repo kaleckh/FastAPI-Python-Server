@@ -120,7 +120,7 @@ def create_post(db: Session, post: PostCreate):
 
 
 
-def update_post(db: Session, post_id: int, post: PostUpdate):
+def update_post(db: Session, post_id: str, post: PostUpdate):
     post_data = post.model_dump(exclude_unset=True)
     db.query(Post).filter(Post.id == post_id).update(post_data)
     db.commit()

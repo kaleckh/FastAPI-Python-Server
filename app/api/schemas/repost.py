@@ -12,6 +12,9 @@ class RepostCreate(RepostBase):
     pass
 
 
+class RepostUpdate(RepostBase):
+    pass    
+
 class RepostResponse(RepostBase):
     date: datetime
 

@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post("/create")
 def create_comment(comment: CommentCreate, db: Session = Depends(get_db)):
     comment = crud.create_comment(db, comment)
-    allComments = crud.get_all_comments(db)
+    allComments = crud.get_post_comments(db, comment.post_id)
     return {"allComments": allComments}
 
 

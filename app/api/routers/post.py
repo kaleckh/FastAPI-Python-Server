@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.api.crud import post as crud
@@ -29,8 +29,13 @@ def create_post(post: PostCreate, db: Session = Depends(get_db)):
 
 @router.put("/update/{post_id}")
 def update_post(post_id: str, post: PostUpdate, db: Session = Depends(get_db)):
-    post = crud.update_post(db, post_id, post)
-    return {"post": post}
+    updated_post = crud.update_post(db, post_id, post)
+    
+    if updated_post is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    
+    return {"post": updated_post}
+
 
 
 @router.delete("/delete/{post_id}")

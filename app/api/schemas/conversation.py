@@ -9,6 +9,9 @@ class ConversationBase(BaseModel):
 class ConversationCreate(ConversationBase):
     pass  # No extra fields are required
 
+class ConversationUpdate(ConversationBase):
+    pass
+
 # Schema for responding with conversation data
 class ConversationResponse(ConversationBase):
     id: str

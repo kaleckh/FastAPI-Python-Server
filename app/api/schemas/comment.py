@@ -13,6 +13,10 @@ class CommentBase(BaseModel):
 
 class CommentCreate(CommentBase):
     post_id: str 
+    
+    
+class CommentUpdate(CommentBase):
+    pass
 
 
 class CommentResponse(CommentBase):
