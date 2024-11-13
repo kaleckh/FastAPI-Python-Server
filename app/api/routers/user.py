@@ -15,8 +15,8 @@ def read_users(db: Session = Depends(get_db)):
 
 
 @router.get("/myInfo")
-def read_user(email: str, db: Session = Depends(get_db)):
-    user = crud.get_user(db, email)
+def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return {"user": user}

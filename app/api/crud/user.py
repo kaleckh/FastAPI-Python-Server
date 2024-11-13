@@ -1,6 +1,6 @@
 from fastapi import Depends
 from app.database import SessionLocal
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from app.api.schemas.users import UserCreate, UserUpdate
 from app.models import User, Comment
 from fastapi import FastAPI, Depends
@@ -34,10 +34,11 @@ def get_user_with_posts_and_replies(db: Session, user_id: int):
     )
 
 
-def get_user(db: Session, email: str):
-    user = db.query(User).filter(User.email == email).first()
-    return {"user": user}
-
+def get_user_by_email(db: Session, email: str):
+    return db.query(User).filter(User.email == email).options(
+        selectinload(User.comments).selectinload(Comment.replies),
+        selectinload(User.posts)
+    ).first()
 
 def create_user(db: Session, user: UserCreate):
     
