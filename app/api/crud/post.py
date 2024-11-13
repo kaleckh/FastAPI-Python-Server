@@ -91,8 +91,8 @@ def get_FYP_and_reposts(db: Session, user_id: str = None):
 
 
 
-def get_user_posts(db: Session, user_id: str):
-    posts_query = ( db.query(Post).filter(Post.email == user_id).order_by(Post.date.desc()).options(
+def get_user_posts(db: Session, user_id: str, email: str):
+    posts_query = ( db.query(Post).filter(Post.email == email).order_by(Post.date.desc()).options(
         joinedload(Post.comments),
         joinedload(Post.owner),
         joinedload(Post.reposts).joinedload(Repost.post).joinedload(Post.comments),

@@ -7,10 +7,21 @@ from app.api.schemas.posts import PostCreate, PostUpdate
 
 router = APIRouter()
 
-@router.get("/posts")
-def read_posts(db: Session = Depends(get_db)):
-    posts = crud.get_posts(db)
-    return {"posts": posts}
+@router.get("/getPosts")
+async def get_fyp_and_reposts(user_id: str = None, db: Session = Depends(get_db)):
+    try:
+        posts_and_reposts = crud.get_FYP_and_reposts(db, user_id)
+        return {"Posts": posts_and_reposts}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
+@router.get("/getMyPosts")
+async def get_user_posts(user_id: str = None, email: str = None, db: Session = Depends(get_db)):
+    try:
+        posts_and_reposts = crud.get_user_posts(db, user_id, email)
+        return {"Posts": posts_and_reposts}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/post/{post_id}")

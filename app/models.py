@@ -19,7 +19,7 @@ class Post(Base):
     id = Column(String, primary_key=True, default=lambda: cuid())
     content = Column(String, nullable=True)
     email = Column(String, ForeignKey('users.email'), nullable=True)
-    user_name = Column(String, nullable=False)
+    user_name  = Column(String, nullable=False)
     likes = Column(ARRAY(String), default=[])
     comments = relationship('Comment', back_populates='post')
     date = Column(DateTime, default=datetime.utcnow)
