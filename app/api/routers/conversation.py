@@ -16,9 +16,9 @@ def get_conversation(conversation_id: str, db: Session = Depends(get_db)):
 
 
 
-@router.get("/conversations")
-def get_conversations(db: Session = Depends(get_db)):
-    conversations = crud.get_conversations(db)
+@router.get("/getConvos")
+def get_conversations(user_id: str, db: Session = Depends(get_db)):
+    conversations = crud.get_conversations(db, user_id)
     return {"conversations": conversations}
 
 
