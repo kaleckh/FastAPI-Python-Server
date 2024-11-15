@@ -59,6 +59,26 @@ async def create_post(post: PostCreate, req: Request, db: Session = Depends(get_
     created_post = crud.create_post(db, post)
     return {"post": created_post}
 
+
+@router.post("/likes")
+async def add_like(request: Request, db: Session = Depends(get_db)):
+    """
+    Toggle a like for a specific post by a specific user.
+    """
+    data = await request.json()  # Parse the incoming JSON request
+    post_id = data.get("postId")
+    user_id = data.get("userId")
+
+    if not post_id or not user_id:
+        raise HTTPException(status_code=400, detail="Invalid input data")
+
+    post = crud.add_like(db, post_id=post_id, user_id=user_id)
+    if post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return {"post": {"id": post.id, "likes": post.likes}}
+
+
+
 @router.put("/update/{post_id}")
 def update_post(post_id: str, post: PostUpdate, db: Session = Depends(get_db)):
     updated_post = crud.update_post(db, post_id, post)
