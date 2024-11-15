@@ -4,6 +4,11 @@ from sqlalchemy.orm import Session, joinedload
 from app.api.schemas.posts import PostCreate, PostUpdate
 from app.models import Post, Repost, User
 from fastapi import FastAPI, Depends
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 app = FastAPI()
 
@@ -17,6 +22,14 @@ def get_db():
         
 def get_posts(db: Session):
     return db.query(Post).all()
+
+
+
+def get_post(db: Session, post_id: str):
+    return db.query(Post).filter(Post.id == post_id).options(
+        joinedload(Post.comments),
+        joinedload(Post.reposts),
+    ).first()
 
 
 def get_FYP_and_reposts(db: Session, user_id: str = None):
@@ -92,6 +105,7 @@ def get_FYP_and_reposts(db: Session, user_id: str = None):
 
 
 def get_user_posts(db: Session, user_id: str, email: str):
+
     posts_query = ( db.query(Post).filter(Post.email == email).order_by(Post.date.desc()).options(
         joinedload(Post.comments),
         joinedload(Post.owner),
@@ -111,7 +125,7 @@ def create_post(db: Session, post: PostCreate):
     db_post = Post(
         content=post.content,
         user_name=post.user_name,
-        likes=post.likes,
+        email=post.email        
     )
     db.add(db_post)
     db.commit()

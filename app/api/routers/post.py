@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.api.crud import post as crud
 from app.api.schemas.posts import PostCreate, PostUpdate
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter()
@@ -14,6 +18,16 @@ async def get_fyp_and_reposts(user_id: str = None, db: Session = Depends(get_db)
         return {"Posts": posts_and_reposts}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+    
+@router.get("/getPost")
+async def get_post(post_id: str = None, db: Session = Depends(get_db)):
+    try:
+        specific_post = crud.get_post(db, post_id)
+        return {"post": specific_post}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    
     
 @router.get("/getMyPosts")
 async def get_user_posts(user_id: str = None, email: str = None, db: Session = Depends(get_db)):
@@ -33,10 +47,17 @@ def read_post(post_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/create")
-def create_post(post: PostCreate, db: Session = Depends(get_db)):
-    post = crud.create_post(db, post)    
-    return {"post": post}
+async def create_post(post: PostCreate, req: Request, db: Session = Depends(get_db)):
+    # Log the raw request body
+    raw_body = await req.json()
+    logger.info("Raw Request Body: %s", raw_body)
 
+    # Log the parsed Pydantic model
+    logger.info("Parsed Request Model: %s", post.model_dump())
+
+    # Proceed with creating the post
+    created_post = crud.create_post(db, post)
+    return {"post": created_post}
 
 @router.put("/update/{post_id}")
 def update_post(post_id: str, post: PostUpdate, db: Session = Depends(get_db)):

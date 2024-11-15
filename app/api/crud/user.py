@@ -64,6 +64,17 @@ def create_user(db: Session, user: UserCreate):
     return db_user
 
 
+def get_user_by_search(db: Session, search: str):
+    try:
+        users = (
+            db.query(User)
+            .filter(User.username.ilike(f"%{search}%")).all()  
+        )
+        return users
+    except Exception as e:
+        print(f"Error fetching users by search: {e}")
+        return None
+
 
 def update_user(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
     user_data = user.model_dump(exclude_unset=True)

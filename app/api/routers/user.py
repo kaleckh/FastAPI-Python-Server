@@ -23,6 +23,14 @@ async def get_user_by_username(username: str, db: Session = Depends(get_db)):
     return user
 
 
+@router.get("/userSearch")
+def get_user_by_search(search: str, db: Session = Depends(get_db)):
+    user = crud.get_user_by_search(db, search)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"user": user}
+
+
 @router.get("/myInfo")
 def get_user_by_email(email: str, db: Session = Depends(get_db)):
     user = crud.get_user_by_email(db, email)
