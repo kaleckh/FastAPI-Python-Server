@@ -123,9 +123,7 @@ def get_user_posts(db: Session, user_id: str, email: str):
 
 
 def add_like(db: Session, post_id: str, user_id: str):
-    """
-    Toggle a user's like on a post.
-    """
+
     try:
         # Fetch the post by ID
         post = db.query(Post).filter(Post.id == post_id).first()
@@ -142,18 +140,16 @@ def add_like(db: Session, post_id: str, user_id: str):
         else:
             current_likes.append(user_id)
 
-        # Update the likes in the database
         post.likes = current_likes
         db.commit()
         db.refresh(post)
-
         return post
 
     except SQLAlchemyError as e:
         print(f"Database error: {e}")
         db.rollback()
         raise
-
+    
 
 def create_post(db: Session, post: PostCreate):
     db_post = Post(

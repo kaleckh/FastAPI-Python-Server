@@ -62,10 +62,12 @@ async def create_post(post: PostCreate, req: Request, db: Session = Depends(get_
 
 @router.post("/likes")
 async def add_like(request: Request, db: Session = Depends(get_db)):
-    """
-    Toggle a like for a specific post by a specific user.
-    """
-    data = await request.json()  # Parse the incoming JSON request
+    
+    
+    data = await request.json()  
+    
+    logger.info("Raw Request Body: %s", data)
+    
     post_id = data.get("postId")
     user_id = data.get("userId")
 
