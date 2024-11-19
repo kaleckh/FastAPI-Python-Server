@@ -15,6 +15,11 @@ def get_db():
     finally:
         db.close()
         
+def get_single_comment(db: Session, comment_id: str): 
+    comments = db.query(Comment).filter(Comment.id == comment_id).all()
+    return comments
+
+
 def get_post_comments(db: Session, post_id: str): 
     comments = db.query(Comment).filter(Comment.post_id == post_id).all()
     return comments

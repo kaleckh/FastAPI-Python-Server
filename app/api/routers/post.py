@@ -92,7 +92,7 @@ def update_post(post_id: str, post: PostUpdate, db: Session = Depends(get_db)):
 
 
 
-@router.delete("/delete/{post_id}")
+@router.delete("/delete")
 def delete_post(post_id: str, db: Session = Depends(get_db)):
     post = crud.delete_post(db, post_id)
     return {"post": post}

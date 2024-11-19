@@ -7,6 +7,12 @@ from app.api.schemas.comment import CommentCreate, CommentUpdate
 
 router = APIRouter()
 
+@router.get("/singleComment")
+def get_conversation(comment_id: str, db: Session = Depends(get_db)):
+    comment = crud.get_single_comment(db, comment_id)
+    return {"comment": comment}
+
+
 
 @router.post("/addComment")
 def create_comment(comment: CommentCreate, db: Session = Depends(get_db)):
@@ -32,7 +38,7 @@ async def add_like(request: Request, db: Session = Depends(get_db)):
 
 
 
-@router.delete('/delete/{comment_id}')
+@router.delete('/delete')
 def delete_comment(comment_id: str, db: Session = Depends(get_db) ):
     return crud.delete_comment(db, comment_id)
 
