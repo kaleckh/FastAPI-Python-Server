@@ -33,9 +33,38 @@ def read_post(post_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/create")
-def create_post(post: PostCreate, db: Session = Depends(get_db)):
-    post = crud.create_post(db, post)    
-    return {"post": post}
+async def create_post(post: PostCreate, req: Request, db: Session = Depends(get_db)):
+    # Log the raw request body
+    raw_body = await req.json()
+    logger.info("Raw Request Body: %s", raw_body)
+
+    # Log the parsed Pydantic model
+    logger.info("Parsed Request Model: %s", post.model_dump())
+
+    # Proceed with creating the post
+    created_post = crud.create_post(db, post)
+    return {"post": created_post}
+
+
+@router.post("/likes")
+async def add_like(request: Request, db: Session = Depends(get_db)):
+    
+    
+    data = await request.json()  
+    
+    logger.info("Raw Request Body: %s", data)
+    
+    post_id = data.get("postId")
+    user_id = data.get("userId")
+
+    if not post_id or not user_id:
+        raise HTTPException(status_code=400, detail="Invalid input data")
+
+    post = crud.add_like(db, post_id=post_id, user_id=user_id)
+    if post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return {"post": {"id": post.id, "likes": post.likes}}
+
 
 
 @router.put("/update/{post_id}")

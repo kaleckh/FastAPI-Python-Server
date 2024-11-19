@@ -107,6 +107,35 @@ def get_user_posts(db: Session, user_id: str, email: str):
     return {"posts": posts, "reposts": reposts}
 
 
+def add_like(db: Session, post_id: str, user_id: str):
+
+    try:
+        # Fetch the post by ID
+        post = db.query(Post).filter(Post.id == post_id).first()
+
+        if not post:
+            return None  # Post not found
+
+        # Ensure likes is always a list
+        current_likes = post.likes or []
+
+        # Toggle the like
+        if user_id in current_likes:
+            current_likes.remove(user_id)
+        else:
+            current_likes.append(user_id)
+
+        post.likes = current_likes
+        db.commit()
+        db.refresh(post)
+        return post
+
+    except SQLAlchemyError as e:
+        print(f"Database error: {e}")
+        db.rollback()
+        raise
+    
+
 def create_post(db: Session, post: PostCreate):
     db_post = Post(
         content=post.content,

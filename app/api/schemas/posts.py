@@ -4,7 +4,8 @@ from typing import List, Optional
 
 class PostBase(BaseModel):
     content: Optional[str] = None
-    user_name: str
+    user_name: str = None
+    email: str = None
     likes: List[str] = []
 
 # Schema for creating a new post
