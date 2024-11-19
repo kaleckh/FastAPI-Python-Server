@@ -31,76 +31,12 @@ def get_post(db: Session, post_id: str):
         joinedload(Post.comments),
         joinedload(Post.reposts),
     ).first()
+    
+    
 
-
-def get_FYP_and_reposts(db: Session, user_id: str = None):
-    # Fetch posts and reposts based on whether user_id is provided
-    if not user_id:
-        # Get all posts
-        posts = (
-            db.query(Post)
-            .order_by(Post.date.desc())
-            .options(
-                joinedload(Post.comments),
-                joinedload(Post.owner),
-                joinedload(Post.reposts)
-            )
-            .all()
-        )
-
-        # Get all reposts
-        reposts = (
-            db.query(Repost)
-            .order_by(Repost.date.desc())
-            .options(
-                joinedload(Repost.user),
-                joinedload(Repost.post).joinedload(Post.comments),
-                joinedload(Repost.post).joinedload(Post.owner),
-                joinedload(Repost.post).joinedload(Post.reposts)
-            )
-            .all()
-        )
-    else:
-        # Verify that the user exists
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            raise ValueError("User does not exist")
-
-        # Get posts for the user and those they follow
-        posts = (
-            db.query(Post)
-            .filter(Post.owner_id.in_([*user.following, user_id]))  # Owner ID in following list or user_id
-            .order_by(Post.date.desc())
-            .options(
-                joinedload(Post.comments),
-                joinedload(Post.owner),
-                joinedload(Post.reposts)
-            )
-            .all()
-        )
-
-        # Get reposts for the user and those they follow
-        reposts = (
-            db.query(Repost)
-            .filter(Repost.user_id.in_([*user.following, user_id]))  # User ID in following list or user_id
-            .order_by(Repost.date.desc())
-            .options(
-                joinedload(Repost.user),
-                joinedload(Repost.post).joinedload(Post.comments),
-                joinedload(Repost.post).joinedload(Post.owner),
-                joinedload(Repost.post).joinedload(Post.reposts)
-            )
-            .all()
-        )
-
-    # Combine and sort by date
-    query = sorted(
-        [*posts, *reposts],
-        key=lambda x: x.date,
-        reverse=True
-    )
-
-    return query
+def get_FYP_and_reposts(db: Session):
+    return db.query(Post).all()
+  
 
 
 

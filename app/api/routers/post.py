@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.get("/getPosts")
-async def get_fyp_and_reposts(user_id: str = None, db: Session = Depends(get_db)):
+async def get_fyp_and_reposts( db: Session = Depends(get_db)):
     try:
-        posts_and_reposts = crud.get_FYP_and_reposts(db, user_id)
+        posts_and_reposts = crud.get_FYP_and_reposts(db)
         return {"Posts": posts_and_reposts}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
