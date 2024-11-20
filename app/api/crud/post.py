@@ -65,13 +65,8 @@ def add_like(db: Session, post_id: str, user_id: str):
             logger.error("Post not found with id: %s", post_id)
             return None
 
-        logger.info("Initial likes: %s", post.likes)
-
-        # Ensure likes is initialized
         current_likes = post.likes or []
-        logger.info("current likes before action: %s", current_likes)
-
-        # Update the likes list
+        
         if user_id in current_likes:
             logger.info("user id found: %s", user_id)
             current_likes.remove(user_id)
@@ -81,9 +76,8 @@ def add_like(db: Session, post_id: str, user_id: str):
 
         logger.info("current likes after action: %s", current_likes)
 
-        # Reassign to ensure change tracking
         post.likes = current_likes
-        flag_modified(post, "likes")  # Mark the column as modified
+        flag_modified(post, "likes")
         db.commit()
         logger.info("Database updated successfully")
         
@@ -93,6 +87,8 @@ def add_like(db: Session, post_id: str, user_id: str):
     except Exception as e:
         logger.error("Error in add_like: %s", e)
         raise
+
+
 
 def create_post(db: Session, post: PostCreate):
     db_post = Post(
