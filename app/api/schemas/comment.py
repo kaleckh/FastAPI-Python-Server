@@ -20,6 +20,10 @@ class CommentUpdate(CommentBase):
     pass
 
 
+class CommentDelete(CommentBase):
+    comment_id: str
+
+
 class CommentResponse(CommentBase):
     id: str
     post_id: str

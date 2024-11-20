@@ -18,20 +18,17 @@ def get_db():
         db.close()
         
         
-def get_conversations(db: Session, user_id: int):
+def get_conversations(db: Session, user_id: str):
     return (
         db.query(Conversation)
-        .filter(
-            Conversation.users.any(User.id == user_id)  
-        )
+        .join(UsersInConversations)
+        .filter(UsersInConversations.user_id == user_id)
         .options(
-            joinedload(Conversation.users),
-            joinedload(Conversation.messages).order_by(Message.date.desc())
+            joinedload(Conversation.messages),
+            joinedload(Conversation.users)
         )
         .all()
     )
-
-
 
 def get_conversation(db: Session, conversation_id: int):
     return db.query(Conversation).filter(Conversation.id == conversation_id).first()

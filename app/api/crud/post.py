@@ -39,8 +39,6 @@ def get_FYP_and_reposts(db: Session):
   
 
 
-
-
 def get_user_posts(db: Session, user_id: str, email: str):
 
     posts_query = ( db.query(Post).filter(Post.email == email).order_by(Post.date.desc()).options(
@@ -59,32 +57,32 @@ def get_user_posts(db: Session, user_id: str, email: str):
 
 
 def add_like(db: Session, post_id: str, user_id: str):
-
     try:
-        # Fetch the post by ID
         post = db.query(Post).filter(Post.id == post_id).first()
 
         if not post:
             return None  # Post not found
 
-        # Ensure likes is always a list
         current_likes = post.likes or []
-
-        # Toggle the like
+        logger.info("current likes: %s", current_likes)
+        logger.info("user id: %s", user_id)
+        
+        # Update the likes list
         if user_id in current_likes:
             current_likes.remove(user_id)
         else:
             current_likes.append(user_id)
 
-        post.likes = current_likes
+        # Reassign to ensure change tracking
+        post.likes = list(current_likes)
         db.commit()
         db.refresh(post)
         return post
-
-    except SQLAlchemyError as e:
-        print(f"Database error: {e}")
-        db.rollback()
+    
+    except Exception as e:
+        logger.error("Error adding like: %s", e)
         raise
+
     
 
 def create_post(db: Session, post: PostCreate):
@@ -109,7 +107,7 @@ def update_post(db: Session, post_id: str, post: PostUpdate):
 
 
 
-def delete_post(db: Session, post_id: int):
+def delete_post(db: Session, post_id: int):    
     db.query(Post).filter(Post.id == post_id).delete()
     db.commit()
     return {"message": "Post deleted"}

@@ -22,6 +22,10 @@ class UserCreate(UserBase):
 class UserUpdate(UserBase):
     pass  # No extra fields are required beyond UserBase
 
+class UserDelete(UserBase):
+    user_id: str
+
+
 # Schema for responding with user data
 class UserResponse(UserBase):
     id: str

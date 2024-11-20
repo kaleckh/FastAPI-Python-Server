@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.api.crud import comment as crud
-from app.api.schemas.comment import CommentCreate, CommentUpdate
+from app.api.schemas.comment import CommentCreate, CommentUpdate, CommentDelete
+from app.models import Comment
 
 
 router = APIRouter()
@@ -37,11 +38,15 @@ async def add_like(request: Request, db: Session = Depends(get_db)):
 
 
 
+@router.post("/delete")
+def delete_post(request: CommentDelete, db: Session = Depends(get_db)):
+    post = db.query(Comment).filter(Comment.id == request.comment_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
 
-@router.delete('/delete')
-def delete_comment(comment_id: str, db: Session = Depends(get_db) ):
-    return crud.delete_comment(db, comment_id)
-
+    db.delete(post)
+    db.commit()
+    return {"message": "Post deleted successfully"}
 
 
 
