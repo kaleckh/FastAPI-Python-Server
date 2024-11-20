@@ -1,6 +1,7 @@
 from fastapi import Depends
 from app.database import SessionLocal
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm.attributes import flag_modified
 from app.api.schemas.posts import PostCreate, PostUpdate
 from app.models import Post, Repost, User
 from sqlalchemy.exc import SQLAlchemyError
@@ -61,29 +62,37 @@ def add_like(db: Session, post_id: str, user_id: str):
         post = db.query(Post).filter(Post.id == post_id).first()
 
         if not post:
-            return None  # Post not found
+            logger.error("Post not found with id: %s", post_id)
+            return None
 
+        logger.info("Initial likes: %s", post.likes)
+
+        # Ensure likes is initialized
         current_likes = post.likes or []
-        logger.info("current likes: %s", current_likes)
-        logger.info("user id: %s", user_id)
-        
+        logger.info("current likes before action: %s", current_likes)
+
         # Update the likes list
         if user_id in current_likes:
+            logger.info("user id found: %s", user_id)
             current_likes.remove(user_id)
         else:
+            logger.info("user id not found: %s", user_id)
             current_likes.append(user_id)
 
-        # Reassign to ensure change tracking
-        post.likes = list(current_likes)
-        db.commit()
-        db.refresh(post)
-        return post
-    
-    except Exception as e:
-        logger.error("Error adding like: %s", e)
-        raise
+        logger.info("current likes after action: %s", current_likes)
 
-    
+        # Reassign to ensure change tracking
+        post.likes = current_likes
+        flag_modified(post, "likes")  # Mark the column as modified
+        db.commit()
+        logger.info("Database updated successfully")
+        
+        db.refresh(post)
+        logger.info("Refreshed post likes: %s", post.likes)
+        return post
+    except Exception as e:
+        logger.error("Error in add_like: %s", e)
+        raise
 
 def create_post(db: Session, post: PostCreate):
     db_post = Post(
