@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: d30328eedcc1
+Revision ID: ebee27139c00
 Revises: 
-Create Date: 2024-11-04 13:44:08.620914
+Create Date: 2024-11-21 15:38:25.195589
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = 'd30328eedcc1'
+revision: str = 'ebee27139c00'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -91,12 +91,15 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reposts',
-    sa.Column('post_id', sa.String(), nullable=False),
+    sa.Column('id', sa.String(), nullable=False),
+    sa.Column('post_id', sa.String(), nullable=True),
+    sa.Column('comment_id', sa.String(), nullable=True),
     sa.Column('user_id', sa.String(), nullable=False),
     sa.Column('date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['comment_id'], ['comments.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('post_id', 'user_id')
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 

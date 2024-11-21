@@ -26,9 +26,9 @@ def get_post_comments(db: Session, post_id: str):
     return comments
 
 
-def add_like(db: Session, comment_id: str, user_id: str):
+def add_like(db: Session, post_id: str, user_id: str):
     try:
-        comment = db.query(Comment).filter(Comment.id == comment_id).first()
+        comment = db.query(Comment).filter(Comment.id == post_id).first()
 
         if not comment:
             return None

@@ -48,11 +48,13 @@ class User(Base):
 
 class Repost(Base):
     __tablename__ = 'reposts'
-
-    post_id = Column(String, ForeignKey('posts.id', ondelete='CASCADE'), primary_key=True)
-    user_id = Column(String, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
+    id = Column(String, primary_key=True, default=lambda: cuid())
+    post_id = Column(String, ForeignKey('posts.id', ondelete='CASCADE'), nullable=True)
+    comment_id = Column(String, ForeignKey('comments.id', ondelete='CASCADE'), nullable=True)
+    user_id = Column(String, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     date = Column(DateTime, default=datetime.utcnow)
     post = relationship('Post', back_populates='reposts')
+    comment = relationship('Comment', back_populates='reposts')
     user = relationship('User', back_populates='reposts')
 
 class Conversation(Base):
@@ -97,3 +99,4 @@ class Comment(Base):
     post = relationship('Post', back_populates='comments')
     user = relationship('User', back_populates='comments')
     parent = relationship('Comment', remote_side=[id], backref='replies')
+    reposts = relationship('Repost', back_populates='comment')  # Add this relationship

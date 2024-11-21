@@ -3,7 +3,7 @@ from app.database import SessionLocal
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.orm.attributes import flag_modified
 from app.api.schemas.posts import PostCreate, PostUpdate
-from app.models import Post, Repost, User
+from app.models import Post, Repost, User, Comment
 from fastapi import FastAPI, Depends
 import logging
 
@@ -26,16 +26,23 @@ def get_posts(db: Session):
 
 
 def get_post(db: Session, post_id: str):
-    return db.query(Post).filter(Post.id == post_id).options(
-        joinedload(Post.comments).joinedload(Comments.comments)
-        joinedload(Post.reposts),
+    post = db.query(Post).filter(Post.id == post_id).options(
+        joinedload(Post.comments)  
+        .joinedload(Comment.replies) 
+        .joinedload(Comment.user),  
+        joinedload(Post.reposts),  
+        joinedload(Post.comments).joinedload(Comment.reposts)  
     ).first()
-    
-    
+
+    if not post:
+        return None 
+
+    return post
 
 def get_FYP_and_reposts(db: Session):
     return db.query(Post).options(
-        joinedload(Post.reposts)
+        joinedload(Post.reposts),
+        joinedload(Post.comments)
     ).all()
   
 

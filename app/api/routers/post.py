@@ -20,6 +20,7 @@ async def get_fyp_and_reposts( db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     
+    
 @router.get("/getMyPosts")
 async def get_user_posts(user_id: str = None, email: str = None, db: Session = Depends(get_db)):
     try:
