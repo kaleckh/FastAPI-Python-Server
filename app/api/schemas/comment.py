@@ -9,15 +9,20 @@ class CommentBase(BaseModel):
     content: str
     user_name: str
     post_id: str
-    likes: List[str] = []
+    user_id: str
+    parent_id: str = None
 
 
 class CommentCreate(CommentBase):
-    post_id: str 
+    pass
     
     
 class CommentUpdate(CommentBase):
     pass
+
+
+class CommentDelete(CommentBase):
+    comment_id: str
 
 
 class CommentResponse(CommentBase):

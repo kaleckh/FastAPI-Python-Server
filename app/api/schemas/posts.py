@@ -5,15 +5,19 @@ from typing import List, Optional
 class PostBase(BaseModel):
     content: Optional[str] = None
     user_name: str = None
-    email: str = None
+    user_id: str = None
+    post_id: str = None    
     likes: List[str] = []
 
 # Schema for creating a new post
 class PostCreate(PostBase):
-    pass  # No extra fields are required beyond PostBase
+    email: str
 
 class PostUpdate(PostBase):
     pass  # No extra fields are required beyond PostBase
+
+class PostDelete(PostBase):
+    post_id: str
 
 # Schema for responding with post data
 class PostResponse(PostBase):

@@ -37,10 +37,17 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return {"user": user}
 
 
-@router.put("/update/{user_id}")
+@router.put("/update")
 def update_user(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
     user_data = user.model_dump(exclude_unset=True)
     user = crud.update_user(db, user_id, user_data)
+    return {"user": user}
+
+
+@router.put("/updateFollowing")
+def update_following_and_followers(my_id: str, their_id: str, user: UserUpdate, db: Session = Depends(get_db)):
+    user_data = user.model_dump(exclude_unset=True)
+    user = crud.update_user(db, my_id, their_id, user_data)
     return {"user": user}
 
 

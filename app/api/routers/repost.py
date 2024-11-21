@@ -7,13 +7,13 @@ from app.api.schemas.repost import RepostCreate
 
 router = APIRouter()    
 
-@router.post("/create")
+@router.post("/add")
 def create_repost(repost: RepostCreate, db: Session = Depends(get_db)):
     repost = crud.create_repost(db, repost)
     return {"repost": repost}
 
 
-@router.delete("/delete/{repost_id}")
-def delete_repost(repost_id: str, db: Session = Depends(get_db)):
-    repost = crud.delete_repost(db, repost_id)
+@router.delete("/delete")
+def delete_repost(user_id: str, post_id: str, db: Session = Depends(get_db)):
+    repost = crud.delete_repost(db, user_id, post_id)
     return {"repost": repost}

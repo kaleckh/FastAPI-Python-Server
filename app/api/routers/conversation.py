@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 
-@router.get("/conversation/{conversation_id}")
+@router.get("/getConvo")
 def get_conversation(conversation_id: str, db: Session = Depends(get_db)):
     conversation = crud.get_conversation(db, conversation_id)
     return {"conversation": conversation}

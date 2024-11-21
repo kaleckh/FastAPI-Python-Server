@@ -12,6 +12,9 @@ class ConversationCreate(ConversationBase):
 class ConversationUpdate(ConversationBase):
     pass
 
+class ConversationDelete(ConversationBase):
+    conversation_id: str
+
 # Schema for responding with conversation data
 class ConversationResponse(ConversationBase):
     id: str

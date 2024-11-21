@@ -1,9 +1,14 @@
 from fastapi import Depends
 from app.database import SessionLocal
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm.attributes import flag_modified
 from app.api.schemas.posts import PostCreate, PostUpdate
 from app.models import Post, Repost, User
 from fastapi import FastAPI, Depends
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -19,129 +24,74 @@ def get_posts(db: Session):
     return db.query(Post).all()
 
 
-def get_FYP_and_reposts(db: Session, user_id: str = None):
-    # Fetch posts and reposts based on whether user_id is provided
-    if not user_id:
-        # Get all posts
-        posts = (
-            db.query(Post)
-            .order_by(Post.date.desc())
-            .options(
-                joinedload(Post.comments),
-                joinedload(Post.owner),
-                joinedload(Post.reposts)
-            )
-            .all()
-        )
 
-        # Get all reposts
-        reposts = (
-            db.query(Repost)
-            .order_by(Repost.date.desc())
-            .options(
-                joinedload(Repost.user),
-                joinedload(Repost.post).joinedload(Post.comments),
-                joinedload(Repost.post).joinedload(Post.owner),
-                joinedload(Repost.post).joinedload(Post.reposts)
-            )
-            .all()
-        )
-    else:
-        # Verify that the user exists
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            raise ValueError("User does not exist")
+def get_post(db: Session, post_id: str):
+    return db.query(Post).filter(Post.id == post_id).options(
+        joinedload(Post.comments).joinedload(Comments.comments)
+        joinedload(Post.reposts),
+    ).first()
+    
+    
 
-        # Get posts for the user and those they follow
-        posts = (
-            db.query(Post)
-            .filter(Post.owner_id.in_([*user.following, user_id]))  # Owner ID in following list or user_id
-            .order_by(Post.date.desc())
-            .options(
-                joinedload(Post.comments),
-                joinedload(Post.owner),
-                joinedload(Post.reposts)
-            )
-            .all()
-        )
-
-        # Get reposts for the user and those they follow
-        reposts = (
-            db.query(Repost)
-            .filter(Repost.user_id.in_([*user.following, user_id]))  # User ID in following list or user_id
-            .order_by(Repost.date.desc())
-            .options(
-                joinedload(Repost.user),
-                joinedload(Repost.post).joinedload(Post.comments),
-                joinedload(Repost.post).joinedload(Post.owner),
-                joinedload(Repost.post).joinedload(Post.reposts)
-            )
-            .all()
-        )
-
-    # Combine and sort by date
-    query = sorted(
-        [*posts, *reposts],
-        key=lambda x: x.date,
-        reverse=True
-    )
-
-    return query
-
-
+def get_FYP_and_reposts(db: Session):
+    return db.query(Post).options(
+        joinedload(Post.reposts)
+    ).all()
+  
 
 
 def get_user_posts(db: Session, user_id: str, email: str):
     posts_query = ( db.query(Post).filter(Post.email == email).order_by(Post.date.desc()).options(
         joinedload(Post.comments),
         joinedload(Post.owner),
-        joinedload(Post.reposts).joinedload(Repost.post).joinedload(Post.comments),
-        joinedload(Post.reposts).joinedload(Repost.user)
+        joinedload(Post.reposts)
     )
     )
     posts = posts_query.all()
-    reposts_query = db.query(Repost).filter(Repost.user_id == user_id).order_by(Repost.date.desc()).options(
-        joinedload(Repost.post)
-    )
-    reposts = reposts_query.all()
-    return {"posts": posts, "reposts": reposts}
+    return {"posts": posts}
 
 
 def add_like(db: Session, post_id: str, user_id: str):
-
     try:
-        # Fetch the post by ID
         post = db.query(Post).filter(Post.id == post_id).first()
 
         if not post:
-            return None  # Post not found
+            logger.error("Post not found with id: %s", post_id)
+            return None
 
-        # Ensure likes is always a list
         current_likes = post.likes or []
-
-        # Toggle the like
+        
         if user_id in current_likes:
+            logger.info("user id found: %s", user_id)
             current_likes.remove(user_id)
         else:
+            logger.info("user id not found: %s", user_id)
             current_likes.append(user_id)
 
-        post.likes = current_likes
-        db.commit()
-        db.refresh(post)
-        return post
+        logger.info("current likes after action: %s", current_likes)
 
-    except SQLAlchemyError as e:
-        print(f"Database error: {e}")
-        db.rollback()
+        post.likes = current_likes
+        flag_modified(post, "likes")
+        db.commit()
+        logger.info("Database updated successfully")
+        
+        db.refresh(post)
+        logger.info("Refreshed post likes: %s", post.likes)
+        return post
+    except Exception as e:
+        logger.error("Error in add_like: %s", e)
         raise
-    
+
+
 
 def create_post(db: Session, post: PostCreate):
+    logger.error("Post contents: %s", post)
     db_post = Post(
         content=post.content,
         user_name=post.user_name,
-        likes=post.likes,
+        email=post.email
     )
+    logger.error("db_post: %s", db_post)
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
@@ -158,7 +108,7 @@ def update_post(db: Session, post_id: str, post: PostUpdate):
 
 
 
-def delete_post(db: Session, post_id: int):
+def delete_post(db: Session, post_id: int):    
     db.query(Post).filter(Post.id == post_id).delete()
     db.commit()
     return {"message": "Post deleted"}

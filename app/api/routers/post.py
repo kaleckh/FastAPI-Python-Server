@@ -1,16 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.api.crud import post as crud
-from app.api.schemas.posts import PostCreate, PostUpdate
+from app.api.schemas.posts import PostCreate, PostUpdate, PostDelete
+import logging
+from app.models import Post, Repost, User
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter()
 
 @router.get("/getPosts")
-async def get_fyp_and_reposts(user_id: str = None, db: Session = Depends(get_db)):
+async def get_fyp_and_reposts( db: Session = Depends(get_db)):
     try:
-        posts_and_reposts = crud.get_FYP_and_reposts(db, user_id)
+        posts_and_reposts = crud.get_FYP_and_reposts(db)
         return {"Posts": posts_and_reposts}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -24,7 +29,7 @@ async def get_user_posts(user_id: str = None, email: str = None, db: Session = D
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/post/{post_id}")
+@router.get("/post")
 def read_post(post_id: str, db: Session = Depends(get_db)):
     post = crud.get_post(db, post_id)
     if post is None:
@@ -78,7 +83,12 @@ def update_post(post_id: str, post: PostUpdate, db: Session = Depends(get_db)):
 
 
 
-@router.delete("/delete/{post_id}")
-def delete_post(post_id: str, db: Session = Depends(get_db)):
-    post = crud.delete_post(db, post_id)
-    return {"post": post}
+@router.post("/delete")
+def delete_post(request: PostDelete, db: Session = Depends(get_db)):
+    post = db.query(Post).filter(Post.id == request.post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    db.delete(post)
+    db.commit()
+    return {"message": "Post deleted successfully"}

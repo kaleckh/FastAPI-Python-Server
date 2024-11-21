@@ -25,7 +25,7 @@ def create_repost(db: Session, repost: RepostCreate):
     return db_repost
 
 
-def delete_repost(db: Session, repost_id: str):
-    db.query(Repost).filter(Repost.id == repost_id).delete()
+def delete_repost(db: Session, user_id: str, post_id: str):
+    db.query(Repost).filter(Repost.user_id == user_id and Repost.post_id == post_id).delete()
     db.commit()
     return {"message": "Repost deleted"}
