@@ -56,7 +56,7 @@ def create_comment(db: Session, comment: CommentCreate):
         user_name=comment.user_name,
         post_id=comment.post_id,        
         user_id=comment.user_id,        
-        parent_id=comment.parent_id,        
+        parent_id=comment.parent_id,         
     )
     db.add(db_comment)
     db.commit()
