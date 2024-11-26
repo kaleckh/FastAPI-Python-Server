@@ -1,6 +1,6 @@
 from fastapi import Depends
 from app.database import SessionLocal
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.api.schemas.comment import CommentCreate, CommentUpdate
 from app.models import Comment
 from sqlalchemy.orm.attributes import flag_modified
@@ -16,9 +16,15 @@ def get_db():
     finally:
         db.close()
         
-def get_single_comment(db: Session, comment_id: str): 
-    comments = db.query(Comment).filter(Comment.id == comment_id).all()
-    return comments
+def get_single_comment(db: Session, comment_id: str):
+    # Fetch the parent comment
+    parent_comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if not parent_comment:
+        return None  # Or handle the case where the parent comment doesn't exist
+
+    replies = db.query(Comment).filter(Comment.parent_id == comment_id).all()
+
+    return {"parent": parent_comment, "replies": replies}
 
 
 def get_post_comments(db: Session, post_id: str): 

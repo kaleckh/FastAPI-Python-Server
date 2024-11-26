@@ -19,7 +19,8 @@ def get_db():
         db.close()
         
         
-def create_repost(db: Session, repost: RepostCreate):    
+def create_repost(db: Session, repost: RepostCreate): 
+    logger.debug("stuff: %s", repost)   
     if repost.post_id:
         delete_count_post = db.query(Repost).filter(
             Repost.post_id == repost.post_id,
