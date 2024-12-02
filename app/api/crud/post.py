@@ -25,19 +25,30 @@ def get_posts(db: Session):
 
 
 
+from sqlalchemy.orm import Session, joinedload
+from app.models import Post, Comment
+
 def get_post(db: Session, post_id: str):
+    # Fetch the post with comments that have no parent_id
     post = db.query(Post).filter(Post.id == post_id).options(
-        joinedload(Post.comments)  
-        .joinedload(Comment.replies) 
-        .joinedload(Comment.user),  
-        joinedload(Post.reposts),  
-        joinedload(Post.comments).joinedload(Comment.reposts)  
+        joinedload(Post.comments)  # Eager load comments
+        .joinedload(Comment.replies)  # Eager load replies for each comment
+        .joinedload(Comment.user),  # Eager load user details for each comment
+        joinedload(Post.reposts),  # Eager load reposts for the post
+        joinedload(Post.comments).joinedload(Comment.reposts)  # Eager load reposts for each comment
     ).first()
-
-    if not post:
-        return None 
-
-    return post
+    
+    if post:
+        # Filter comments without parent_id
+        top_level_comments = [
+            comment for comment in post.comments if comment.parent_id is None
+        ]
+        return {
+            "post": post,
+            "top_level_comments": top_level_comments,
+        }
+    else:
+        return None
 
 def get_FYP_and_reposts(db: Session):
     return db.query(Post).options(

@@ -13,6 +13,7 @@ class CommentBase(BaseModel):
     parent_id: str = None
 
 
+
 class CommentCreate(CommentBase):
     pass
     

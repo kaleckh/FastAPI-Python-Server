@@ -65,11 +65,11 @@ def create_user(db: Session, user: UserCreate):
 
 
 
-def update_user(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
-    user_data = user.model_dump(exclude_unset=True)
-    db.query(User).filter(User.email == user_id).update(user_data)
+def update_user(db: Session, user_data: dict):
+    db.query(User).filter(User.email == user_data["email"]).update(user_data)
     db.commit()
     return user_data
+
 
 
 

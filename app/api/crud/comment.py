@@ -16,16 +16,23 @@ def get_db():
     finally:
         db.close()
         
-def get_single_comment(db: Session, comment_id: str):
-    # Fetch the parent comment
-    parent_comment = db.query(Comment).filter(Comment.id == comment_id).first()
-    if not parent_comment:
-        return None  # Or handle the case where the parent comment doesn't exist
 
-    replies = db.query(Comment).filter(Comment.parent_id == comment_id).all()
+def get_single_comment(db: Session, comment_id: str):
+    # Fetch the parent comment with its reposts
+    parent_comment = db.query(Comment).filter(Comment.id == comment_id).options(
+        joinedload(Comment.reposts)  # Load reposts for the parent comment
+    ).first()
+
+    if not parent_comment:
+        return None  # Handle the case where the parent comment doesn't exist
+
+    # Fetch replies with their reposts
+    replies = db.query(Comment).filter(Comment.parent_id == comment_id).options(
+        joinedload(Comment.reposts),
+        joinedload(Comment.replies)
+    ).all()
 
     return {"parent": parent_comment, "replies": replies}
-
 
 def get_post_comments(db: Session, post_id: str): 
     comments = db.query(Comment).filter(Comment.post_id == post_id).all()

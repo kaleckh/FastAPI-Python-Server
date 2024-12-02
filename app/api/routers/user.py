@@ -36,12 +36,13 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     user = crud.create_user(db, user)    
     return {"user": user}
 
-
-@router.put("/update")
-def update_user(user_id: str, user: UserUpdate, db: Session = Depends(get_db)):
+# user_id: str, user: UserUpdate, db: Session = Depends(get_db)
+@router.post("/update")
+def update_user(user: UserUpdate, db: Session = Depends(get_db)):
+    print("Type of db:", type(db))  # Should print <class 'sqlalchemy.orm.session.Session'>
     user_data = user.model_dump(exclude_unset=True)
-    user = crud.update_user(db, user_id, user_data)
-    return {"user": user}
+    updated_user = crud.update_user(db, user_data)
+    return {"user": updated_user}
 
 
 @router.put("/updateFollowing")

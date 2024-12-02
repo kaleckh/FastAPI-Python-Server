@@ -4,12 +4,19 @@ from app.database import get_db
 from app.api.crud import comment as crud
 from app.api.schemas.comment import CommentCreate, CommentUpdate, CommentDelete
 from app.models import Comment
+import logging
 
+logging.basicConfig(
+    level=logging.DEBUG,  # Set the logging level to DEBUG
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 @router.get("/singleComment")
 def get_single_comment(comment_id: str, db: Session = Depends(get_db)):
+ 
     comment = crud.get_single_comment(db, comment_id)
     return {"comment": comment}
 
@@ -17,8 +24,18 @@ def get_single_comment(comment_id: str, db: Session = Depends(get_db)):
 
 @router.post("/addComment")
 def create_comment(comment: CommentCreate, db: Session = Depends(get_db)):
-    comment = crud.create_comment(db, comment)
-    return {"allComments": comment}
+    
+    try:
+        print("kale")
+        print("Received create comment request with data: %s", comment.dict())
+        newComment = crud.create_comment(db, comment)
+        return {"allComments": newComment}
+    # except ValidationError as e:
+    #     logger.error("Validation error: %s", e.json())
+    #     raise HTTPException(status_code=422, detail=e.errors())
+    except Exception as e:
+        logger.error("Unexpected error: %s", str(e))
+        raise HTTPException(status_code=500, detail="An error occurred")
 
 
 @router.post("/likes")

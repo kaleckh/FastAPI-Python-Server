@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
 from app.database import SessionLocal
 from sqlalchemy.orm import Session
 from app.models import User
-from app.api.routers import user, post, comment, repost, conversation, message
+from app.api.routers import user, post, comment, repost, conversation, message, supabase
 from sqlalchemy import create_engine
 import os
 from dotenv import load_dotenv
@@ -46,6 +46,7 @@ app.include_router(comment.router, prefix="/comments", tags=["comments"])
 app.include_router(repost.router, prefix="/reposts", tags=["reposts"])
 app.include_router(conversation.router, prefix="/conversations", tags=["conversations"])
 app.include_router(message.router, prefix="/messages", tags=["messages"])
+app.include_router(supabase.router, prefix="/supabase", tags=["supabase"])
 
 # Load environment variables
 load_dotenv()
