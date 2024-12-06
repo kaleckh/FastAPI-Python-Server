@@ -18,10 +18,9 @@ app = FastAPI()
 # CORS configuration
 origins = [
     "*"
-    # "http://localhost",
-    # "http://localhost:3000",  # Add your frontend URL here
-    # "http://localhost:8081",  # Add your frontend URL here
-    # Add more origins as needed
+    "http://localhost",
+    "http://localhost:3000", 
+    "https://social-mobile.vercel.app/",     
 ]
 
 app.add_middleware(
