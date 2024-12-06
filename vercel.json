@@ -1,14 +1,17 @@
 {
   "version": 2,
   "functions": {
-    "app/api/*.py": {
+    "app/*.py": {
       "runtime": "python3.9"
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "app/api/main.py"
+      "dest": "app/main.py"
     }
-  ]
+  ],
+  "env": {
+    "PYTHONPATH": "./"
+  }
 }
