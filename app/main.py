@@ -49,7 +49,7 @@ app.include_router(supabase.router, prefix="/supabase", tags=["supabase"])
 
 # Load environment variables
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DIRECT_URL")
 
 engine = create_engine(DATABASE_URL)    
 
