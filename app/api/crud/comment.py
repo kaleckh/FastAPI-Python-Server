@@ -66,7 +66,7 @@ def add_like(db: Session, post_id: str, user_id: str):
 def create_comment(db: Session, comment: CommentCreate):
     db_comment = Comment(
         content=comment.content,
-        user_name=comment.user_name,
+        userName=comment.userName,
         post_id=comment.post_id,        
         user_id=comment.user_id,        
         parent_id=comment.parent_id,         

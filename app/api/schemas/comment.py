@@ -7,7 +7,7 @@ from typing import List, Optional
 
 class CommentBase(BaseModel):
     content: str
-    user_name: str
+    userName: str
     post_id: str
     user_id: str
     parent_id: str = None

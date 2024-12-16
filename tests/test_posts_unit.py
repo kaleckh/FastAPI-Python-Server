@@ -97,8 +97,8 @@ def test_add_like(mock_db):
 def test_create_post(mock_db):
     """Test create_post function."""
     # Arrange
-    post_data = PostCreate(content="New post", user_name="user1", email="user@example.com")
-    mock_post = Post(id="1", content="New post", user_name="user1", email="user@example.com")
+    post_data = PostCreate(content="New post", userName="user1", email="user@example.com")
+    mock_post = Post(id="1", content="New post", userName="user1", email="user@example.com")
     mock_db.add.return_value = None
     mock_db.refresh.return_value = mock_post
 
@@ -107,7 +107,7 @@ def test_create_post(mock_db):
 
     # Assert
     assert result.content == "New post"
-    assert result.user_name == "user1"
+    assert result.userName == "user1"
     mock_db.add.assert_called_once()
     mock_db.commit.assert_called_once()
 

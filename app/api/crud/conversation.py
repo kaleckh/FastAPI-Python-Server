@@ -88,7 +88,7 @@ def create_conversation(db: Session, conversation_data: ConversationCreate):
 def create_comment(db: Session, message: MessageCreate):
     db_comment = Message(
         content=message.content,
-        user_name=message.user_name,
+        userName=message.userName,
         post_id=message.post_id,
         likes=message.likes
     )

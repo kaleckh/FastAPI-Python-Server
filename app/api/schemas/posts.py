@@ -4,7 +4,7 @@ from typing import List, Optional
 
 class PostBase(BaseModel):
     content: Optional[str] = None
-    user_name: str = None
+    userName: str = None
     user_id: str = None
     post_id: str = None    
     likes: List[str] = []

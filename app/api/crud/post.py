@@ -106,7 +106,7 @@ def create_post(db: Session, post: PostCreate):
     logger.error("Post contents: %s", post)
     db_post = Post(
         content=post.content,
-        user_name=post.user_name,
+        userName=post.userName,
         email=post.email
     )
     logger.error("db_post: %s", db_post)
