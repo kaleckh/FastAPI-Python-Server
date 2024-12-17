@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, Form, HTTPException, Depends, APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, update
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
 from supabase import create_client, Client

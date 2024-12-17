@@ -1,4 +1,5 @@
 import pytest
+import logging
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -21,6 +22,10 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
+logging.basicConfig()
+logging.getLogger("sqlalchemy.engine").setLevel(logging.DEBUG)
+
+
 # Setup database
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
@@ -31,11 +36,16 @@ def setup_database():
 @pytest.fixture(scope="function")
 def setup_test_data():
     db = TestingSessionLocal()
-    test_post = Post(content="Test post", userName="testuser", email="testuser@example.com")    
+    Base.metadata.drop_all(bind=engine)  # Clear old schema
+    Base.metadata.create_all(bind=engine)  # Recreate schema
+
+    test_post = Post(content="Test post", username="testuser", email="testuser@example.com")
     db.add(test_post)
     db.commit()
     db.refresh(test_post)
+    print("Inserted Post:", test_post.id, test_post.content, test_post.username)
     yield db
+    db.rollback()
     db.close()
 
 client = TestClient(app)
@@ -43,8 +53,6 @@ client = TestClient(app)
 def test_get_posts(setup_test_data):  
     db = TestingSessionLocal()
     posts = db.query(Post).all()
-    for post in posts:
-        print(f"Post ID: {post.id}, Content: {post.content}, UserName: {post.userName}, Email: {post.email}")
     db.close()
     response = client.get("/posts/getPosts")
     assert response.status_code == 200

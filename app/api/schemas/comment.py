@@ -34,5 +34,5 @@ class CommentResponse(CommentBase):
     replies: List["CommentResponse"] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 

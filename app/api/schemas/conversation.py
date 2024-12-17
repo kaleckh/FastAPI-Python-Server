@@ -22,7 +22,7 @@ class ConversationResponse(ConversationBase):
     users: List[str] = []  # List of user IDs in the conversation
 
     class Config:
-        orm_mode = True
+        from_attributes = True
         
 class UsersInConversationsBase(BaseModel):
     conversation_id: str
@@ -33,6 +33,6 @@ class UsersInConversationsCreate(UsersInConversationsBase):
 
 class UsersInConversationsResponse(UsersInConversationsBase):
     class Config:
-        orm_mode = True
+        from_attributes = True
         
         # Base schema for common fields

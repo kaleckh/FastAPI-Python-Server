@@ -36,4 +36,4 @@ class UserResponse(UserBase):
     date: datetime
 
     class Config:
-        orm_mode = True  # Enable ORM mode to work with SQLAlchemy
+        from_attributes = True  # Enable ORM mode to work with SQLAlchemy

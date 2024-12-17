@@ -22,7 +22,7 @@ class RepostResponse(RepostBase):
     date: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 

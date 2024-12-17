@@ -1,7 +1,6 @@
 from sqlalchemy import (
     Column,
     String,
-    Integer,
     ForeignKey,
     DateTime,
     Table,
@@ -10,15 +9,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.dialects.postgresql import ARRAY
+from datetime import datetime, UTC
 from sqlalchemy.types import TypeDecorator
 from app.database import Base
 from datetime import datetime
 from cuid import cuid
 
-# Detect database dialect
 engine = create_engine("sqlite:///test.db", connect_args={"check_same_thread": False})
 
-# Many-to-Many association table for followers and following
 user_followers_table = Table(
     "user_followers",
     Base.metadata,
@@ -27,24 +25,23 @@ user_followers_table = Table(
 )
 
 
-# Custom type to handle ARRAY for PostgreSQL and JSON for SQLite
 class ArrayOrJson(TypeDecorator):
     impl = ARRAY
 
     def load_dialect_impl(self, dialect):
         if dialect.name == "sqlite":
-            return dialect.type_descriptor(JSON())  # SQLite uses JSON
-        return dialect.type_descriptor(ARRAY(String))  # PostgreSQL uses ARRAY with item type
+            return dialect.type_descriptor(JSON())  
+        return dialect.type_descriptor(ARRAY(String)) 
 
     def process_bind_param(self, value, dialect):
         if dialect.name == "sqlite":
-            return value  # JSON serialization for SQLite
-        return value  # For PostgreSQL, pass the array as is
+            return value  
+        return value  
 
     def process_result_value(self, value, dialect):
         if dialect.name == "sqlite":
-            return value  # JSON deserialization for SQLite
-        return value  # For PostgreSQL, return the array
+            return value 
+        return value  
 
 
 class Post(Base):
@@ -52,10 +49,10 @@ class Post(Base):
     id = Column(String, primary_key=True, default=lambda: cuid())
     content = Column(String, nullable=True)
     email = Column(String, ForeignKey("users.email"), nullable=True)
-    userName = Column(String, nullable=False)
+    username = Column("username", String, nullable=False)
     likes = Column(ArrayOrJson(String), default=list)
     comments = relationship("Comment", back_populates="post")
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=lambda: datetime.now(UTC))
     owner = relationship("User", back_populates="posts")
     reposts = relationship("Repost", back_populates="post")
 
@@ -67,7 +64,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     username = Column(String, unique=True, nullable=False)
     reposts = relationship("Repost", back_populates="user")
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=lambda: datetime.now(UTC))
     blurhash = Column(String, nullable=True)
     location = Column(String, nullable=True)
     bio = Column(String, nullable=True)
@@ -89,7 +86,7 @@ class Repost(Base):
         String, ForeignKey("comments.id", ondelete="CASCADE"), nullable=True
     )
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=lambda: datetime.now(UTC))
     post = relationship("Post", back_populates="reposts")
     comment = relationship("Comment", back_populates="reposts")
     user = relationship("User", back_populates="reposts")
@@ -100,7 +97,7 @@ class Conversation(Base):
 
     id = Column(String, primary_key=True, default=lambda: cuid())
     messages = relationship("Message", back_populates="conversation")
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=lambda: datetime.now(UTC))
     users = relationship("UsersInConversations", back_populates="conversation")
 
 
@@ -122,7 +119,7 @@ class Message(Base):
 
     id = Column(String, primary_key=True, default=lambda: cuid())
     conversation_id = Column(String, ForeignKey("conversations.id", ondelete="CASCADE"))
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=lambda: datetime.now(UTC))
     message = Column(String, nullable=False)
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"))
     status = Column(String, nullable=True)
@@ -137,8 +134,8 @@ class Comment(Base):
     post_id = Column(String, ForeignKey("posts.id", ondelete="CASCADE"))
     likes = Column(ArrayOrJson(String), default=list)
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"))
-    userName = Column(String, nullable=False)
-    date = Column(DateTime, default=datetime.utcnow)
+    username = Column(String, nullable=False)
+    date = Column(DateTime, default=lambda: datetime.now(UTC))
     parent_id = Column(String, ForeignKey("comments.id"), nullable=True)
     post = relationship("Post", back_populates="comments")
     user = relationship("User", back_populates="comments")
